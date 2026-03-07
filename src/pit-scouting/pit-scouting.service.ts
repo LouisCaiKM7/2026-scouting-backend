@@ -18,7 +18,7 @@ export class PitScoutingService {
     const teamNumber = Number(createPitScoutingDto.teamNumber);
     const team = await this.teamService.findOrCreate(teamNumber);
 
-    const user = await this.userService.getUserByFeishuId(userId);
+    const user = await this.userService.getUserByEmail(userId);
     console.log(user);
 
     // Check if team already has pit scouting
@@ -60,13 +60,11 @@ export class PitScoutingService {
       autoType: pitScouting.autoType,
       capabilities: pitScouting.capabilities,
       chassisType: pitScouting.chassisType,
-      cycleTime: pitScouting.cycleTime,
       comments: pitScouting.comments,
       photos: pitScouting.photos,
       teamNumber: pitScouting.team.number,
       scoutedBy: {
         name: pitScouting.user.name,
-        avatar: pitScouting.user.avatar
       }
     };
   }

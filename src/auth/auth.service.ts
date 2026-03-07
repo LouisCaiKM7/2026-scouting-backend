@@ -1,61 +1,41 @@
-import { Injectable } from '@nestjs/common';
-import { HttpService } from '@nestjs/axios';
-import { Observable } from 'rxjs';
-import { AxiosResponse } from 'axios';
-import { GetAccessTokenResponse } from './dto/access-token.dto';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { GetUserInfoResponse } from './dto/user-info.dto';
-import { JwtPayload } from './auth.controller';
 import { JwtService } from '@nestjs/jwt';
+import { UserService } from '../user/user.service';
+import { JwtPayload } from './auth.controller';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
-export class FeishuAuthService {
+export class AuthService {
   constructor(
-    private readonly httpService: HttpService,
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
+    private readonly userService: UserService,
   ) {}
 
-  getAccessToken(
-    code: string,
-  ): Observable<AxiosResponse<GetAccessTokenResponse>> {
-    let something = this.configService.get<string>('FEISHU_CLIENT_ID');
-    console.log(something);
-    console.log(this.configService.get<string>('FEISHU_CLIENT_ID'))
-    console.log(this.configService.get<string>('FEISHU_CLIENT_SECRET'))
-    console.log(this.configService.get<string>('FEISHU_REDIRECT_URI'))
-    console.log(code)
-    console.log(this.configService.get('JWT_SECRET'))
-
-    return this.httpService.post(
-      'https://open.feishu.cn/open-apis/authen/v2/oauth/token',
-      {
-        grant_type: 'authorization_code',
-        client_id: this.configService.get<string>('FEISHU_CLIENT_ID'),
-        client_secret: this.configService.get<string>('FEISHU_CLIENT_SECRET'),
-        code: code,
-        redirect_uri: this.configService.get<string>('FEISHU_REDIRECT_URI'),
-      },
-    );
+  async validateUser(email: string, password: string) {
+    const user = await this.userService.getUserByEmail(email);
+    if (!user) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+    return user;
   }
 
-  getUserInfo(
-    accessToken: string,
-  ): Observable<AxiosResponse<GetUserInfoResponse>> {
-    return this.httpService.get(
-      'https://open.feishu.cn/open-apis/authen/v1/user_info',
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
-      },
-    );
+  async hashPassword(password: string): Promise<string> {
+    return bcrypt.hash(password, 10);
   }
 
   async getPayload(token: string): Promise<JwtPayload> {
     return await this.jwtService.verifyAsync(token, {
       secret: this.configService.get('JWT_SECRET'),
     });
+  }
+
+  async signPayload(payload: JwtPayload): Promise<string> {
+    return this.jwtService.signAsync(payload);
   }
 }

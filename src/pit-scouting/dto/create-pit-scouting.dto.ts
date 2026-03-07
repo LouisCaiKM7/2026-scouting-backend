@@ -2,31 +2,16 @@ import { IsString, IsNumber, IsArray, IsObject, IsBoolean, IsOptional } from 'cl
 
 class Capabilities {
   @IsBoolean()
-  coralL1: boolean;
+  towerL1: boolean;
 
   @IsBoolean()
-  coralL2: boolean;
+  towerL2: boolean;
 
   @IsBoolean()
-  coralL3: boolean;
+  towerL3: boolean;
 
-  @IsBoolean()
-  coralL4: boolean;
-
-  @IsBoolean()
-  algaeProcessor: boolean;
-
-  @IsBoolean()
-  algaeBarge: boolean;
-
-  @IsBoolean()
-  climbNone: boolean;
-
-  @IsBoolean()
-  climbShallow: boolean;
-
-  @IsBoolean()
-  climbDeep: boolean;
+  @IsNumber()
+  fuelStorageAbility: number;
 }
 
 export class CreatePitScoutingDto {
@@ -39,9 +24,6 @@ export class CreatePitScoutingDto {
   @IsString()
   chassisType: string;
 
-  @IsNumber()
-  cycleTime: string;
-
   @IsArray()
   @IsString({ each: true })
   photos: string[];
@@ -52,4 +34,4 @@ export class CreatePitScoutingDto {
   @IsString()
   @IsOptional()
   comments?: string;
-} 
+}

@@ -15,13 +15,13 @@ export class User {
   @Column({
     unique: true,
   })
-  feishuId: string;
+  email: string;
+
+  @Column()
+  password: string;
 
   @Column()
   name: string;
-
-  @Column()
-  avatar: string;
 
   @Column({
     type: 'enum',

@@ -4,11 +4,9 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
-import { ConfigService } from '@nestjs/config';
 import { JwtPayload } from './auth.controller';
-import { FeishuAuthService } from './auth.service';
+import { AuthService } from './auth.service';
 
 export interface AuthenticatedRequest extends Request {
   user?: JwtPayload;
@@ -16,7 +14,7 @@ export interface AuthenticatedRequest extends Request {
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private authService: FeishuAuthService) {}
+  constructor(private authService: AuthService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request: AuthenticatedRequest = context.switchToHttp().getRequest();

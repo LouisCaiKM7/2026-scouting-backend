@@ -22,7 +22,7 @@ export class ScoutingService {
     teamMatchRecordDto: CreateTeamRecordDto,
     userId: string,
   ): Promise<void> {
-    const user = await this.userService.getUserByFeishuId(userId);
+    const user = await this.userService.getUserByEmail(userId);
     const data = instanceToPlain(teamMatchRecordDto);
     const record = plainToClass(TeamMatchRecord, data);
     if (user === null) {
@@ -35,7 +35,7 @@ export class ScoutingService {
   }
 
   async create(createDto: CreateTeamRecordDto, userId: string) {
-    const user = await this.userService.getUserByFeishuId(userId);
+    const user = await this.userService.getUserByEmail(userId);
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -93,7 +93,6 @@ export class ScoutingService {
       endAndAfterGame: match.endAndAfterGame,
       scoutedBy: {
         name: match.user.name,
-        avatar: match.user.avatar
       }
     }));
   }
@@ -114,7 +113,6 @@ export class ScoutingService {
       team: match.team.number,
       scoutedBy: {
         name: match.user.name,
-        avatar: match.user.avatar
       }
     }));
   }
@@ -164,7 +162,7 @@ export class ScoutingService {
     }
 
     // Get the user
-    const user = await this.userService.getUserByFeishuId(userId);
+    const user = await this.userService.getUserByEmail(userId);
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -202,7 +200,6 @@ export class ScoutingService {
       endAndAfterGame: updated.endAndAfterGame,
       scoutedBy: {
         name: updated.user.name,
-        avatar: updated.user.avatar
       }
     };
   }

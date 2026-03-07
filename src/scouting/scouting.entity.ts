@@ -14,87 +14,78 @@ export enum Alliance {
   BLUE = 'Blue',
 }
 
-export class CoralCount {
-  @Column()
-  l4: number;
-
-  @Column()
-  l3: number;
-
-  @Column()
-  l2: number;
-
-  @Column()
-  l1: number;
-
-  @Column()
-  dropOrMiss: number;
+export enum FetchBallPreference {
+  DEPOT = 'Depot',
+  OUTPOST_CHUTE = 'Outpost Chute',
+  NEUTRAL_ZONE = 'Neutral Zone',
 }
 
-export class AlgaeCount {
-  @Column()
-  netShot: number;
-
-  @Column()
-  processor: number;
-
-  @Column()
-  dropOrMiss: number;
+export enum TowerStatus {
+  NONE = 'None',
+  L1 = 'L1',
+  L2 = 'L2',
+  L3 = 'L3',
 }
 
 export class Autonomous {
   @Column('int', { name: 'autoStart' })
   autoStart: number;
 
-  @Column({nullable: true})
+  @Column({ nullable: true })
   leftStartingZone: boolean;
 
-  @Column(() => CoralCount)
-  coralCount: CoralCount;
+  @Column({ default: 0 })
+  fuelCount: number;
 
-  @Column(() => AlgaeCount)
-  algaeCount: AlgaeCount;
+  @Column({ default: false })
+  isTowerSuccess: boolean;
 }
 
 export class Teleop {
-  @Column(() => CoralCount)
-  coralCount: CoralCount;
+  @Column({ default: 0 })
+  fuelCount: number;
 
-  @Column(() => AlgaeCount)
-  algaeCount: AlgaeCount;
-}
+  @Column({ default: 0 })
+  humanFuelCount: number;
 
-export enum StopStatus {
-  PARK = 'Park',
-  DEEP = 'Deep Climb',
-  SHALLOW = 'Shallow Climb',
-  PLAYED_DEFENSE = 'Played Defense',
-  FAILED = 'Failed',
+  @Column({ default: false })
+  passBump: boolean;
+
+  @Column({ default: false })
+  passTrench: boolean;
+
+  @Column({
+    type: 'enum',
+    enum: FetchBallPreference,
+    nullable: true,
+  })
+  fetchBallPreference: FetchBallPreference;
 }
 
 export class EndAndAfterGame {
   @Column({
     type: 'enum',
-    enum: StopStatus,
+    enum: TowerStatus,
+    default: TowerStatus.NONE,
   })
-  stopStatus: StopStatus;
+  towerStatus: TowerStatus;
 
-  @Column({nullable: true})
+  @Column({ nullable: true })
   comments: string;
-  
-  @Column({nullable: true})
+
+  @Column({ nullable: true })
   climbingTime: number;
-  
-  @Column({nullable: true})
+
+  @Column({ nullable: true })
   rankingPoint: number;
-  
-  @Column({nullable: true})
+
+  @Column({ nullable: true })
   coopPoint: boolean;
-  
-  @Column({nullable: true})
+
+  @Column({ nullable: true })
   autonomousMove: boolean;
-  
-  @Column({nullable: true})
+
+  @Column({ nullable: true })
   teleopMove: boolean;
 }
 

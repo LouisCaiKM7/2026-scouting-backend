@@ -1,106 +1,80 @@
-import { Alliance, MatchType, StopStatus } from '../scouting.entity';
+import { Alliance, FetchBallPreference, MatchType, TowerStatus } from '../scouting.entity';
 import {
   IsDefined,
   IsEnum,
   IsInt,
   IsString,
-  Max,
+  IsOptional,
   Min,
   ValidateNested,
   IsBoolean,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
-export class CoralCount {
-  @Min(0)
-  @IsInt()
-  l4: number;
-
-  @Min(0)
-  @IsInt()
-  l3: number;
-
-  @Min(0)
-  @IsInt()
-  l2: number;
-
-  @Min(0)
-  @IsInt()
-  l1: number;
-
-  @Min(0)
-  @IsInt()
-  dropOrMiss: number;
-}
-
-export class AlgaeCount {
-  @Min(0)
-  @IsInt()
-  netShot: number;
-
-  @Min(0)
-  @IsInt()
-  processor: number;
-
-  @Min(0)
-  @IsInt()
-  dropOrMiss: number;
-}
-
 export class Autonomous {
   @IsInt()
   @Min(0)
-  @Max(6)
   autoStart: number;
-  
+
   @IsBoolean()
   leftStartingZone: boolean;
 
-  @ValidateNested()
-  @IsDefined()
-  @Type(() => CoralCount)
-  coralCount: CoralCount;
+  @IsInt()
+  @Min(0)
+  fuelCount: number;
 
-  @ValidateNested()
-  @IsDefined()
-  @Type(() => AlgaeCount)
-  algaeCount: AlgaeCount;
+  @IsBoolean()
+  isTowerSuccess: boolean;
 }
 
 export class Teleop {
-  @ValidateNested()
-  @IsDefined()
-  @Type(() => CoralCount)
-  coralCount: CoralCount;
+  @IsInt()
+  @Min(0)
+  fuelCount: number;
 
-  @ValidateNested()
-  @IsDefined()
-  @Type(() => AlgaeCount)
-  algaeCount: AlgaeCount;
+  @IsInt()
+  @Min(0)
+  humanFuelCount: number;
+
+  @IsBoolean()
+  passBump: boolean;
+
+  @IsBoolean()
+  passTrench: boolean;
+
+  @IsEnum(FetchBallPreference)
+  @IsOptional()
+  fetchBallPreference: FetchBallPreference;
 }
 
 export class EndAndAfterGame {
-  @IsEnum(StopStatus)
-  stopStatus: StopStatus;
+  @IsEnum(TowerStatus)
+  towerStatus: TowerStatus;
 
   @IsString()
+  @IsOptional()
   comments: string;
-  
+
   @IsInt()
   @Min(0)
+  @IsOptional()
   climbingTime: number;
-  
+
   @IsInt()
   @Min(0)
+  @IsOptional()
   rankingPoint: number;
-  
+
   @IsBoolean()
+  @IsOptional()
   coopPoint: boolean;
-  
+
   @IsBoolean()
+  @IsOptional()
   autonomousMove: boolean;
-  
+
   @IsBoolean()
+  @IsOptional()
   teleopMove: boolean;
 }
 

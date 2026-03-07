@@ -1,63 +1,62 @@
 import {
+  Body,
   Controller,
-  ForbiddenException,
-  Get, Logger,
-  Query,
-  UnauthorizedException,
+  ConflictException,
+  Post,
+  Logger,
 } from '@nestjs/common';
-import { FeishuAuthService } from './auth.service';
-import { catchError, firstValueFrom } from 'rxjs';
-import { AxiosError } from 'axios';
-import { JwtService } from '@nestjs/jwt';
-import { Role } from '../user/user.entity';
+import { AuthService } from './auth.service';
 import { UserService } from '../user/user.service';
+import { Role } from '../user/user.entity';
+import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
 
 @Controller('auth')
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);
 
   constructor(
-    private feishuAuthService: FeishuAuthService,
-    private jwtService: JwtService,
+    private authService: AuthService,
     private userService: UserService,
   ) {}
 
-  @Get('feishu/authenticate')
-  async authenticate(@Query('code') code: string) {
-    this.logger.log(code)
-    this.logger.log('1');
-
-    const resAccessToken = await firstValueFrom(
-      this.feishuAuthService.getAccessToken(code).pipe(
-        catchError((error: AxiosError) => {
-          this.logger.error(error.response?.data);
-          throw new ForbiddenException(error.response?.data);
-        }),
-      ),
+  @Post('login')
+  async login(@Body() loginDto: LoginDto) {
+    const user = await this.authService.validateUser(
+      loginDto.email,
+      loginDto.password,
     );
-    const accessToken = resAccessToken.data.access_token;
-    const resUserInfo = await firstValueFrom(
-      this.feishuAuthService.getUserInfo(accessToken).pipe(
-        catchError((error: AxiosError) => {
-          this.logger.error(error.response?.data);
-          throw new UnauthorizedException(error.response?.data);
-        }),
-      ),
-    );
-    const name = resUserInfo.data.data.name;
-    const openId = resUserInfo.data.data.open_id;
-    const avatarUrl = resUserInfo.data.data.avatar_url;
-    if (!(await this.userService.isUserExistByFeishuId(openId))) {
-      await this.userService.createUser(name, openId, avatarUrl, [Role.USER]);
-    }
-    const roles = await this.userService.getUserRoleByFeishuId(openId);
-    if (roles === undefined) {
-      this.logger.error(`User ${name} roles empty`);
-      throw new UnauthorizedException('Roles empty');
-    }
-    const payload: JwtPayload = { sub: openId, name, avatarUrl, roles };
+    const payload: JwtPayload = {
+      sub: user.email,
+      name: user.name,
+      roles: user.roles,
+    };
     return {
-      accessToken: await this.jwtService.signAsync(payload),
+      accessToken: await this.authService.signPayload(payload),
+    };
+  }
+
+  @Post('register')
+  async register(@Body() registerDto: RegisterDto) {
+    if (await this.userService.isUserExistByEmail(registerDto.email)) {
+      throw new ConflictException('Email already registered');
+    }
+    const hashedPassword = await this.authService.hashPassword(
+      registerDto.password,
+    );
+    const user = await this.userService.createUser(
+      registerDto.name,
+      registerDto.email,
+      hashedPassword,
+      [Role.USER],
+    );
+    const payload: JwtPayload = {
+      sub: user.email,
+      name: user.name,
+      roles: user.roles,
+    };
+    return {
+      accessToken: await this.authService.signPayload(payload),
     };
   }
 }
@@ -65,6 +64,5 @@ export class AuthController {
 export type JwtPayload = {
   name: string;
   sub: string;
-  avatarUrl: string;
   roles: Role[];
 };

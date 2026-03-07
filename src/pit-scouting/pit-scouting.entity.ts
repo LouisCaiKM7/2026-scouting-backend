@@ -12,22 +12,14 @@ export class PitScouting {
 
   @Column('json')
   capabilities: {
-    coralL1: boolean;
-    coralL2: boolean;
-    coralL3: boolean;
-    coralL4: boolean;
-    algaeProcessor: boolean;
-    algaeBarge: boolean;
-    climbNone: boolean;
-    climbShallow: boolean;
-    climbDeep: boolean;
+    towerL1: boolean;
+    towerL2: boolean;
+    towerL3: boolean;
+    fuelStorageAbility: number;
   };
 
   @Column()
   chassisType: string;
-
-  @Column()
-  cycleTime: string;
 
   @Column('simple-array')
   photos: string[];
@@ -41,4 +33,4 @@ export class PitScouting {
   @OneToOne(() => Team, (team) => team.pitScouting)
   @JoinColumn()
   team: Team;
-} 
+}

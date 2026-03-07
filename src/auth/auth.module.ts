@@ -1,14 +1,12 @@
 import { Module } from '@nestjs/common';
-import { HttpModule } from '@nestjs/axios';
-import { FeishuAuthService } from './auth.service';
+import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import { JwtModule, JwtService } from '@nestjs/jwt';
+import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserModule } from '../user/user.module';
 
 @Module({
   imports: [
-    HttpModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {
@@ -23,8 +21,8 @@ import { UserModule } from '../user/user.module';
     UserModule,
     ConfigModule,
   ],
-  providers: [FeishuAuthService],
+  providers: [AuthService],
   controllers: [AuthController],
-  exports: [FeishuAuthService],
+  exports: [AuthService],
 })
 export class AuthModule {}

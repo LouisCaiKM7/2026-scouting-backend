@@ -10,16 +10,12 @@ export class UserService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async isUserExistByFeishuId(feishuId: string): Promise<boolean> {
-    return await this.userRepository.existsBy({
-      feishuId,
-    });
+  async isUserExistByEmail(email: string): Promise<boolean> {
+    return await this.userRepository.existsBy({ email });
   }
 
-  async getUserRoleByFeishuId(feishuId: string): Promise<Role[] | undefined> {
-    const user = await this.userRepository.findOneBy({
-      feishuId,
-    });
+  async getUserRoleByEmail(email: string): Promise<Role[] | undefined> {
+    const user = await this.userRepository.findOneBy({ email });
     return user?.roles;
   }
 
@@ -27,10 +23,8 @@ export class UserService {
     return await this.userRepository.find();
   }
 
-  async getUserByFeishuId(feishuId: string): Promise<User | null> {
-    return await this.userRepository.findOneBy({
-      feishuId,
-    });
+  async getUserByEmail(email: string): Promise<User | null> {
+    return await this.userRepository.findOneBy({ email });
   }
 
   async findOne(options: FindOneOptions<User>): Promise<User | undefined> {
@@ -40,15 +34,16 @@ export class UserService {
 
   async createUser(
     name: string,
-    openId: string,
-    avatarUrl: string,
+    email: string,
+    password: string,
     roles: Role[],
-  ): Promise<void> {
-    const user = this.userRepository.create();
-    user.roles = roles;
-    user.name = name;
-    user.feishuId = openId;
-    user.avatar = avatarUrl;
-    await this.userRepository.save(user);
+  ): Promise<User> {
+    const user = this.userRepository.create({
+      name,
+      email,
+      password,
+      roles,
+    });
+    return await this.userRepository.save(user);
   }
 }

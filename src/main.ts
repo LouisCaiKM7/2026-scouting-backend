@@ -9,13 +9,30 @@ let app: any;
 
 async function bootstrap() {
   app = await NestFactory.create(AppModule);
+
+  // 详细的 CORS 配置
   app.enableCors({
-    origin: true, // Allow all origins for Vercel
+    origin: function (_origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
+      // 允许所有来源（生产环境）
+      callback(null, true);
+    },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
-    exposedHeaders: ['Authorization'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: [
+      'Origin',
+      'X-Requested-With',
+      'Content-Type',
+      'Accept',
+      'Authorization',
+      'Access-Control-Request-Method',
+      'Access-Control-Request-Headers'
+    ],
+    exposedHeaders: ['Authorization', 'Access-Control-Allow-Origin'],
+    maxAge: 86400, // 24 hours
+    preflightContinue: false,
+    optionsSuccessStatus: 204
   });
+
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
   await app.init();
 

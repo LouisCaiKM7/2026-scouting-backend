@@ -30,7 +30,15 @@ import { EventModule } from './event/event.module';
         password: configService.get('POSTGRES_PASSWORD'),
         database: configService.get('POSTGRES_DB'),
         autoLoadEntities: true,
-        synchronize: true,
+        synchronize: true, // 临时启用以创建表，创建后改回 false
+        ssl: process.env.NODE_ENV === 'production' ? {
+          rejectUnauthorized: false, // 允许自签名证书
+        } : false,
+        extra: {
+          // 优化 serverless 环境
+          max: 1, // 限制连接数
+          connectionTimeoutMillis: 10000,
+        },
       }),
       inject: [ConfigService],
     }),

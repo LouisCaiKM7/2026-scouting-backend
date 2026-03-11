@@ -110,7 +110,7 @@ export class TeamMatchRecord {
   @JoinColumn({ name: 'scoutEventId' })
   scoutEvent: ScoutEvent;
 
-  @Column()
+  @Column({ nullable: true })  // 临时允许 null 以完成迁移
   scoutEventId: string;
 
   @ManyToOne(() => EventMatch, { onDelete: 'CASCADE', nullable: true })
